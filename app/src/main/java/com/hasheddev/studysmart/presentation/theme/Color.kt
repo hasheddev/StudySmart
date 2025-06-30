@@ -1,4 +1,4 @@
-package com.example.studysmart.ui.theme
+package com.hasheddev.studysmart.presentation.theme
 
 import androidx.compose.ui.graphics.Color
 
