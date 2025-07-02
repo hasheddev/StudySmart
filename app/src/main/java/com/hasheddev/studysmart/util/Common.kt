@@ -4,6 +4,10 @@ import androidx.compose.ui.graphics.Color
 import com.hasheddev.studysmart.presentation.theme.Green
 import com.hasheddev.studysmart.presentation.theme.Orange
 import com.hasheddev.studysmart.presentation.theme.Red
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 enum class Priority(
     val title: String,
@@ -17,4 +21,13 @@ enum class Priority(
     companion object {
         fun fromInt(value: Int) = values().firstOrNull { it.value == value } ?: MEDIUM
     }
+}
+
+fun Long?.dateMillisToString(): String {
+    val date = this?.let {
+        Instant.ofEpochMilli(it)
+            .atZone(ZoneId.systemDefault())
+            .toLocalDate()
+    } ?: LocalDate.now()
+    return date.format(DateTimeFormatter.ofPattern("dd MMM yyyy"))
 }
