@@ -42,6 +42,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.hasheddev.studysmart.presentation.components.DeleteDialogue
 import com.hasheddev.studysmart.presentation.components.SubjectListBottomSheet
 import com.hasheddev.studysmart.presentation.components.TaskCheckBox
@@ -50,14 +51,36 @@ import com.hasheddev.studysmart.presentation.theme.Red
 import com.hasheddev.studysmart.subjects
 import com.hasheddev.studysmart.util.Priority
 import com.hasheddev.studysmart.util.dateMillisToString
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
 import java.time.Instant
 
+data class TaskScreenNavArgs(
+    val subjectId: Int?,
+    val taskId: Int?
+)
+
 const val bodyText = "Are you sure you want to delete this task?" +
         "This action cannot be undone"
+
+@Destination(navArgsDelegate = TaskScreenNavArgs::class)
+@Composable
+fun TaskScreenRoute(
+    navigator: DestinationsNavigator
+) {
+    val viewModel: TaskViewModel = hiltViewModel()
+
+    TaskScreen(
+        onBackButtonClick = { navigator.navigateUp() },
+    )
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TaskScreen() {
+private fun TaskScreen(
+    onBackButtonClick: () -> Unit
+) {
 
     var  title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
@@ -121,7 +144,7 @@ fun TaskScreen() {
                 taskExists = true,
                 isComplete = false,
                 checkBoxBorderColor = Red,
-                onBackButtonClick = {},
+                onBackButtonClick = onBackButtonClick,
                 onDeleteButtonClick = { isDeleteDialogueOpen = true },
                 onCheckBoxClick = {}
             )

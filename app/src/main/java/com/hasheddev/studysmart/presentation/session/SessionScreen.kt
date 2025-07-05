@@ -35,19 +35,36 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.hasheddev.studysmart.emptySessionText
 import com.hasheddev.studysmart.presentation.components.DeleteDialogue
 import com.hasheddev.studysmart.presentation.components.SubjectListBottomSheet
 import com.hasheddev.studysmart.presentation.components.studySessionsList
 import com.hasheddev.studysmart.sessions
 import com.hasheddev.studysmart.subjects
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
 
 const val bodyText = "Are you sure you want to delete this session?" +
         "This action cannot be undone"
+
+@Destination
+@Composable
+fun SessionScreenRoute(
+    navigator: DestinationsNavigator
+) {
+    val viewModel: SessionViewModel = hiltViewModel()
+    SessionScreen(
+        onBackButtonClick = { navigator.navigateUp() }
+    )
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SessionScreen() {
+private fun SessionScreen(
+    onBackButtonClick: () -> Unit
+) {
 
     var isDeleteDialogueOpen by rememberSaveable { mutableStateOf(false) }
     var isBottomSheetOpen by remember { mutableStateOf(false) }
@@ -82,7 +99,7 @@ fun SessionScreen() {
 
     Scaffold(
         topBar = {
-            SessionTopBar {  }
+            SessionTopBar { onBackButtonClick() }
         }
     ) { paddingValues ->
         LazyColumn(

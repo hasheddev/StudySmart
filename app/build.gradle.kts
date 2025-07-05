@@ -67,8 +67,8 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     androidTestImplementation(platform("androidx.compose:compose-bom:2023.10.00"))
     androidTestImplementation("androidx.compose.presentation:presentation-test-junit4")
-    debugImplementation("androidx.compose.presentation:presentation-tooling")
-    debugImplementation("androidx.compose.presentation:presentation-test-manifest")
+    debugImplementation("androidx.compose.ui:ui-tooling")
+    debugImplementation("androidx.compose.ui:ui-test-manifest")
 
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0-alpha02")
 
@@ -90,7 +90,8 @@ dependencies {
     implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
 
     //fonts
-    implementation("androidx.compose.presentation:presentation-text-google-fonts:1.5.3")
+    //implementation("androidx.compose.presentation:presentation-text-google-fonts:1.5.3")
+    implementation("androidx.compose.ui:ui-text-google-fonts:1.6.0")
 
     //Desugaring
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.3")

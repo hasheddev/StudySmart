@@ -26,80 +26,102 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.hasheddev.studysmart.R
 import com.hasheddev.studysmart.domain.model.Subject
+import com.hasheddev.studysmart.emptyListText
+import com.hasheddev.studysmart.emptySessionText
+import com.hasheddev.studysmart.presentation.components.AddSubjectDialogue
 import com.hasheddev.studysmart.presentation.components.CountCard
-import com.hasheddev.studysmart.domain.model.Session
-import com.hasheddev.studysmart.domain.model.Task
+import com.hasheddev.studysmart.presentation.components.DeleteDialogue
 import com.hasheddev.studysmart.presentation.components.SubjectCard
 import com.hasheddev.studysmart.presentation.components.studySessionsList
 import com.hasheddev.studysmart.presentation.components.taskList
+import com.hasheddev.studysmart.presentation.destinations.SessionScreenRouteDestination
+import com.hasheddev.studysmart.presentation.destinations.SubjectScreenRouteDestination
+import com.hasheddev.studysmart.presentation.destinations.TaskScreenRouteDestination
+import com.hasheddev.studysmart.presentation.subject.SubjectScreenNavArgs
+import com.hasheddev.studysmart.presentation.task.TaskScreenNavArgs
+import com.hasheddev.studysmart.sessions
+import com.hasheddev.studysmart.subjects
+import com.hasheddev.studysmart.taskList
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
-
-private const val emptyListText = "You don't have any upcoming tasks.\n Click the + button in subject screen button to add new tasks."
-private const val emptySessionText = "You don't have any recent study sessions.\n Start a study session to begin recording your progress."
+@Destination(start = true)
 @Composable
-fun DashBoardScreen() {
-    val subjects = listOf(
-        Subject(subjectId = 0, name = "English", goalHours = 10f, colors = Subject.subjectCardColors[0]),
-        Subject(subjectId = 0, name = "Physics", goalHours = 1f, colors = Subject.subjectCardColors[1]),
-        Subject(subjectId = 0, name = "Maths", goalHours = 12f, colors = Subject.subjectCardColors[2]),
-        Subject(subjectId = 0, name = "Geology", goalHours = 0.3f, colors = Subject.subjectCardColors[3]),
-        Subject(subjectId = 0, name = "Fine Arts", goalHours = 9f, colors = Subject.subjectCardColors[4])
+fun DashboardScreenRoute(
+    navigator: DestinationsNavigator
+) {
+
+    val viewModel: DashBoardViewModel = hiltViewModel()
+    DashBoardScreen(
+        onSubjectCardClick= { id ->
+            id?.let {
+                val navArgs = SubjectScreenNavArgs(subjectId = id)
+                navigator.navigate(SubjectScreenRouteDestination(navArgs = navArgs))
+            }
+        },
+        onTaskCardClick= { id ->
+            val navArgs = TaskScreenNavArgs(taskId = id, subjectId = null)
+            navigator.navigate(TaskScreenRouteDestination(navArgs = navArgs))
+        },
+        onStartSessionClick = {
+            navigator.navigate(SessionScreenRouteDestination)
+        }
     )
-    val taskList = listOf(
-        Task(taskId = 1, subjectId = 0, title = "Prepare Notes", description = "", dueDate = 0L, priority = 1, relatedSubject = "", isComplete = false),
-        Task(taskId = 1, subjectId = 0, title = "Homework", description = "", dueDate = 0L, priority = 0, relatedSubject = "", isComplete = false),
-        Task(taskId = 1, subjectId = 0, title = "Coaching", description = "", dueDate = 0L, priority = 2, relatedSubject = "", isComplete = true),
-        Task(taskId = 1, subjectId = 0, title = "Assignment", description = "", dueDate = 0L, priority = 5, relatedSubject = "", isComplete = false),
-        Task(taskId = 1, subjectId = 0, title = "Prepare Notes", description = "", dueDate = 0L, priority = 1, relatedSubject = "", isComplete = true)
+}
+@Composable
+private fun DashBoardScreen(
+    onSubjectCardClick: (Int?) -> Unit,
+    onTaskCardClick: (Int?) -> Unit,
+    onStartSessionClick: () -> Unit
+) {
+
+    var isAddSubjectDialogueOpen by rememberSaveable { mutableStateOf(false) }
+    var isDeleteSessionDialogueOpen by rememberSaveable { mutableStateOf(false) }
+    var subjectName by remember { mutableStateOf("") }
+    var targetStudyHours by remember { mutableStateOf("") }
+    var selectedColors by remember { mutableStateOf(Subject.subjectCardColors.random()) }
+
+
+    AddSubjectDialogue(
+        isOpen = isAddSubjectDialogueOpen,
+        onDismissRequest = { isAddSubjectDialogueOpen = false },
+        onConfirmClicked = {
+            isAddSubjectDialogueOpen = false
+        },
+        subjectName = subjectName,
+        targetStudyHour = targetStudyHours,
+        selectedColors = selectedColors,
+        onColorsChange = { selectedColors = it },
+        onSubjectNameChange = { subjectName = it },
+        onTargetStudyHourChange = { targetStudyHours = it }
     )
 
-    val sessions = listOf(
-        Session(
-            relatedSubject = "English",
-            date = 0L,
-            duration = 2,
-            sessionId = 2,
-            sessionSubjectId = 1
-        ),
-        Session(
-            relatedSubject = "Maths",
-            date = 1L,
-            duration = 0,
-            sessionId = 3,
-            sessionSubjectId = 6
-        ),
-        Session(
-            relatedSubject = "Geo",
-            date = 1L,
-            duration = 0,
-            sessionId = 3,
-            sessionSubjectId = 6
-        ),
-        Session(
-            relatedSubject = "Maths",
-            date = 1L,
-            duration = 0,
-            sessionId = 3,
-            sessionSubjectId = 6
-        ),
-        Session(
-            relatedSubject = "Maths",
-            date = 1L,
-            duration = 0,
-            sessionId = 3,
-            sessionSubjectId = 6
-        ),
-
-        )
-
+    DeleteDialogue(
+        isOpen = isDeleteSessionDialogueOpen,
+        title = "Delete Session?",
+        bodyText = "Are you sure you want to delete this session? Your Study hours will be reduced" +
+                "by this session time. This action cannot be undone.",
+        onDismissRequest = {
+            isDeleteSessionDialogueOpen = false
+        },
+        onConfirmClicked = {
+            isDeleteSessionDialogueOpen = false
+        }
+    )
 
     Scaffold(
         topBar ={ DashBoardScreenTopAppBar() }
@@ -110,7 +132,7 @@ fun DashBoardScreen() {
         ) {
             item {
                 CountCardSection(
-                    modifier = Modifier.fillMaxSize().padding(12.dp),
+                    modifier = Modifier.fillMaxWidth().padding(12.dp),
                     subjectCount = 5,
                     hoursStudied = "10",
                     goalHours = "15"
@@ -120,13 +142,17 @@ fun DashBoardScreen() {
             item {
                 SubjectCardSection(
                     subjectList = subjects,
+                    onAddIconClicked = {
+                        isAddSubjectDialogueOpen = true
+                    },
+                    onSubjectCardClick = onSubjectCardClick,
                     modifier = Modifier.fillMaxWidth()
                 )
             }
 
             item {
                 Button(
-                    onClick = {},
+                    onClick = onStartSessionClick,
                     modifier = Modifier.fillMaxWidth()
                         .padding(horizontal = 48.dp, vertical = 20.dp)
                 ) {
@@ -140,7 +166,7 @@ fun DashBoardScreen() {
                 emptyListText = emptyListText,
                 tasks = taskList,
                 onCheckBoxClicked = {},
-                onTaskCardClick = {}
+                onTaskCardClick = onTaskCardClick
             )
 
             item {
@@ -151,7 +177,7 @@ fun DashBoardScreen() {
                 sectionTitle = "RECENT STUDY SESSIONS",
                 emptyListText = emptySessionText,
                 sessions = sessions,
-                onDeleteIconClick = {}
+                onDeleteIconClick = { isDeleteSessionDialogueOpen = true }
             )
         }
     }
@@ -200,12 +226,14 @@ private fun CountCardSection(
         )
     }
 }
-private const val empty = "You don't have any subjects.\n Click the + button to add new subjects."
 
+const val empty = "You don't have any subjects.\n Click the + button to add new subjects."
 @Composable
 private fun SubjectCardSection(
     subjectList: List<Subject> = emptyList(),
     emptyListText: String = empty,
+    onAddIconClicked: () -> Unit,
+    onSubjectCardClick: (Int?) -> Unit,
     modifier: Modifier
 ) {
 
@@ -221,7 +249,7 @@ private fun SubjectCardSection(
                 modifier = Modifier.padding(start = 12.dp)
             )
 
-            IconButton(onClick = {}) {
+            IconButton(onClick = onAddIconClicked) {
                 Icon(
                     imageVector = Icons.Default.Add,
                     contentDescription = "Add Subject"
@@ -254,7 +282,7 @@ private fun SubjectCardSection(
                     SubjectCard(
                         subjectName = subject.name,
                         gradientColors = subject.colors,
-                        onClick = {},
+                        onClick = { onSubjectCardClick(subject.subjectId) },
                         modifier = Modifier
                     )
                 }
