@@ -1,6 +1,5 @@
 package com.hasheddev.studysmart.domain.model
 
-import androidx.compose.ui.graphics.Color
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.hasheddev.studysmart.presentation.theme.gradient1
@@ -14,7 +13,7 @@ data class Subject(
     @PrimaryKey(autoGenerate = true) val subjectId: Int? = null,
     val name: String,
     val goalHours: Float,
-    val colors: List<Color>
+    val colors: List<Int>
 ) {
     companion object {
         val subjectCardColors = listOf(

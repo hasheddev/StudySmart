@@ -281,7 +281,7 @@ private fun SubjectCardSection(
                 items(subjectList) {subject ->
                     SubjectCard(
                         subjectName = subject.name,
-                        gradientColors = subject.colors,
+                        gradientColors = subject.colors.map { Color(it) },
                         onClick = { onSubjectCardClick(subject.subjectId) },
                         modifier = Modifier
                     )

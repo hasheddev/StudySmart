@@ -9,34 +9,43 @@ import com.hasheddev.studysmart.data.local.TaskDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object DatabaseModule{
+object DatabaseModule {
+
 
     @Provides
     @Singleton
-    fun providesDatabase(@ApplicationContext context: Application): AppDataBase {
+    fun provideDatabase(
+        application: Application
+    ): AppDataBase {
         return Room
             .databaseBuilder(
-                context,
+                application,
                 AppDataBase::class.java,
                 "StudySmart.db"
-            ).build()
+            )
+            .build()
     }
 
     @Provides
     @Singleton
-    fun providesSubjectDao(database: AppDataBase): SubjectDao = database.subjectDao()
+    fun provideSubjectDao(database: AppDataBase): SubjectDao {
+        return database.subjectDao()
+    }
 
     @Provides
     @Singleton
-    fun providesSessionDao(database: AppDataBase): SessionDao = database.sessionDao()
+    fun provideTaskDaoDao(database: AppDataBase): TaskDao {
+        return database.taskDao()
+    }
 
     @Provides
     @Singleton
-    fun providesTaskDao(database: AppDataBase): TaskDao = database.taskDao()
+    fun provideSessionDao(database: AppDataBase): SessionDao {
+        return database.sessionDao()
+    }
 }

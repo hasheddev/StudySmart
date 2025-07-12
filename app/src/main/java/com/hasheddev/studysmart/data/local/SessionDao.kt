@@ -1,11 +1,13 @@
 package com.hasheddev.studysmart.data.local
 
+import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import com.hasheddev.studysmart.domain.model.Session
 import kotlinx.coroutines.flow.Flow
 
+@Dao
 interface SessionDao {
 
     @Insert
@@ -14,7 +16,7 @@ interface SessionDao {
     @Delete
     suspend fun deleteSession(session: Session)
 
-    @Query("SELECt * FROM Session")
+    @Query("SELECT * FROM Session")
     fun getAllSessions(): Flow<List<Session>>
 
     @Query("SELECT * FROM Session WHERE sessionSubjectId = :subjectId")
