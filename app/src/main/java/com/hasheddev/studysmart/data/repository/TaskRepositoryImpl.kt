@@ -4,6 +4,7 @@ import com.hasheddev.studysmart.data.local.TaskDao
 import com.hasheddev.studysmart.domain.model.Task
 import com.hasheddev.studysmart.domain.repository.TaskRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class TaskRepositoryImpl @Inject constructor (
@@ -14,22 +15,35 @@ class TaskRepositoryImpl @Inject constructor (
     }
 
     override suspend fun deleteTask(taskId: Int) {
-        TODO("Not yet implemented")
+        taskDao.deleteTask(taskId)
     }
 
     override suspend fun getTaskById(taskId: Int): Task? {
-        TODO("Not yet implemented")
+        return taskDao.getTaskById(taskId)
     }
 
-    override suspend fun getUpcomingTasksForSubject(subjectId: Int): Flow<List<Task>> {
-        TODO("Not yet implemented")
+    override fun getUpcomingTasksForSubject(subjectId: Int): Flow<List<Task>> {
+        return taskDao.getTasksForSubject(subjectId).map { tasks ->
+            tasks.filter { it.isComplete.not() } }
+            .map { tasks -> tasks.sortTasks() }
     }
 
-    override suspend fun getCompletedTasksForSubject(subjectId: Int): Flow<List<Task>> {
-        TODO("Not yet implemented")
+    override fun getCompletedTasksForSubject(subjectId: Int): Flow<List<Task>> {
+        return taskDao.getTasksForSubject(subjectId).map { tasks ->
+            tasks.filter { it.isComplete } }
+            .map { tasks -> tasks.sortTasks() }
     }
 
-    override suspend fun getAllUpcomingTasksForSubject(subjectId: Int): Flow<List<Task>> {
-        TODO("Not yet implemented")
+    override fun getAllUpcomingTasks(): Flow<List<Task>> {
+       return taskDao.getAllTasks().map { tasks ->
+           tasks.filter { it.isComplete.not() } }
+           .map { tasks -> tasks.sortTasks() }
     }
+}
+
+
+private fun List<Task>.sortTasks(): List<Task> {
+    return this.sortedWith(
+        compareBy<Task> { it.dueDate }.thenByDescending { it.priority }
+    )
 }

@@ -1,29 +1,91 @@
 package com.hasheddev.studysmart
 
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
+import android.os.Build
 import android.os.Bundle
+import android.os.IBinder
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.toArgb
+import androidx.core.app.ActivityCompat
 import com.hasheddev.studysmart.domain.model.Session
 import com.hasheddev.studysmart.domain.model.Subject
-import com.hasheddev.studysmart.domain.model.Task
 import com.hasheddev.studysmart.presentation.NavGraphs
+import com.hasheddev.studysmart.presentation.destinations.SessionScreenRouteDestination
+import com.hasheddev.studysmart.presentation.session.StudySessionTimerService
 import com.hasheddev.studysmart.presentation.theme.StudySmartTheme
 import com.ramcosta.composedestinations.DestinationsNavHost
+import com.ramcosta.composedestinations.navigation.dependency
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    private var isBound by mutableStateOf(false)
+    private lateinit var timerService: StudySessionTimerService
+
+    private val connection = object: ServiceConnection {
+        override fun onServiceConnected(p0: ComponentName?, service: IBinder?) {
+            val binder = service as StudySessionTimerService.StudySessionServiceBinder
+            timerService = binder.getService()
+            isBound = true
+        }
+
+        override fun onServiceDisconnected(p0: ComponentName?) {
+            isBound = false
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        Intent(this, StudySessionTimerService::class.java).also { intent ->
+            bindService(intent, connection, Context.BIND_AUTO_CREATE)
+        }
+    }
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             StudySmartTheme {
-                DestinationsNavHost(
-                    navGraph = NavGraphs.root
-                )
+                if (isBound)
+                    DestinationsNavHost(
+                        navGraph = NavGraphs.root,
+                        dependenciesContainerBuilder = {
+                            dependency(SessionScreenRouteDestination) {
+                                timerService
+                            }
+                        }
+                    )
             }
+            requestPermissions()
+        }
+    }
+    private fun requestPermissions() {
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.TIRAMISU) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(
+                    android.Manifest.permission.POST_NOTIFICATIONS,
+                    android.Manifest.permission.FOREGROUND_SERVICE
+                ),
+                0
+            )
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        if (isBound) {
+            unbindService(connection)
+            isBound = false
         }
     }
 }
@@ -34,13 +96,6 @@ val subjects = listOf(
     Subject(subjectId = 0, name = "Maths", goalHours = 12f, colors = Subject.subjectCardColors[2].map { it.toArgb() }),
     Subject(subjectId = 0, name = "Geology", goalHours = 0.3f, colors = Subject.subjectCardColors[3].map { it.toArgb() }),
     Subject(subjectId = 0, name = "Fine Arts", goalHours = 9f, colors = Subject.subjectCardColors[4].map { it.toArgb() })
-)
-val taskList = listOf(
-    Task(taskId = 1, subjectId = 0, title = "Prepare Notes", description = "", dueDate = 0L, priority = 1, relatedSubject = "", isComplete = false),
-    Task(taskId = 1, subjectId = 0, title = "Homework", description = "", dueDate = 0L, priority = 0, relatedSubject = "", isComplete = false),
-    Task(taskId = 1, subjectId = 0, title = "Coaching", description = "", dueDate = 0L, priority = 2, relatedSubject = "", isComplete = true),
-    Task(taskId = 1, subjectId = 0, title = "Assignment", description = "", dueDate = 0L, priority = 5, relatedSubject = "", isComplete = false),
-    Task(taskId = 1, subjectId = 0, title = "Prepare Notes", description = "", dueDate = 0L, priority = 1, relatedSubject = "", isComplete = true)
 )
 
 val sessions = listOf(
