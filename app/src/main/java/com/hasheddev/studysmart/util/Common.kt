@@ -35,7 +35,7 @@ fun Long?.dateMillisToString(): String {
 
 fun Long.toHours(): Float {
     val hours = this.toFloat() / 3600f
-    return "%.2f".format(hours).toFloat()
+    return if (hours > 0.1)  "%.2f".format(hours).toFloat() else  "%.3f".format(hours).toFloat()
 }
 
 fun Int.pad(): String {

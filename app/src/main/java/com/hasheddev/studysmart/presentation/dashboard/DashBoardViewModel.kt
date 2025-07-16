@@ -5,6 +5,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hasheddev.studysmart.domain.model.Subject
+import com.hasheddev.studysmart.domain.model.Task
 import com.hasheddev.studysmart.domain.repository.SessionRepository
 import com.hasheddev.studysmart.domain.repository.SubjectRepository
 import com.hasheddev.studysmart.domain.repository.TaskRepository
@@ -24,8 +25,8 @@ import javax.inject.Inject
 @HiltViewModel
 class DashBoardViewModel @Inject constructor(
     private val subjectRepository: SubjectRepository,
-    sessionRepository: SessionRepository,
-    taskRepository: TaskRepository
+    private val sessionRepository: SessionRepository,
+    private val taskRepository: TaskRepository
 ): ViewModel()  {
     private val _state = MutableStateFlow(DashBoardState())
 
@@ -67,7 +68,7 @@ class DashBoardViewModel @Inject constructor(
 
     fun onEvent(event: DashBoardEvent) {
         when(event) {
-            DashBoardEvent.DeleteSession -> deleteSubject()
+            DashBoardEvent.DeleteSession -> deleteSession()
             is DashBoardEvent.OnDeleteSession -> {
                 _state.update { it.copy(session = event.session) }
             }
@@ -80,15 +81,54 @@ class DashBoardViewModel @Inject constructor(
             is DashBoardEvent.OnTagetStudyHoursChange -> {
                 _state.update { it.copy(targetStudyHours = event.hours) }
             }
-            is DashBoardEvent.OnTaskCompleteChanged -> {}
+            is DashBoardEvent.OnTaskCompleteChanged -> { updateTask(event.task) }
             DashBoardEvent.SaveSubject -> {
                 saveSubject()
             }
         }
     }
 
-    private fun deleteSubject() {
+    private fun updateTask(task: Task) {
+        viewModelScope.launch {
+            try {
+                taskRepository.upsertTask(
+                    task = task.copy(isComplete = !task.isComplete)
+                )
+                val message = "Task saved in completed tasks"
+                _snackBarEvent.emit(
+                    SnackBarEvent.ShowSnackBar(message = message)
+                )
+            } catch (e: Exception) {
+                _snackBarEvent.emit(
+                    SnackBarEvent.ShowSnackBar(
+                        message = "Couldn't update Task ${e.message}",
+                        duration = SnackbarDuration.Long
+                    )
+                )
+            }
+        }
+    }
 
+    private fun deleteSession() {
+        viewModelScope.launch {
+            try {
+                _state.value.session?.let {
+                    sessionRepository.deleteSession(it)
+                    _snackBarEvent.emit(
+                        SnackBarEvent.ShowSnackBar(message = "Session deleted successfully")
+                    )
+                } ?: _snackBarEvent.emit(
+                    SnackBarEvent.ShowSnackBar(message = "No Session to delete")
+                )
+            } catch (e: Exception) {
+                _snackBarEvent.emit(
+                    SnackBarEvent.ShowSnackBar(
+                        message = "Couldn't delete session ${e.message}",
+                        duration = SnackbarDuration.Long
+                    )
+                )
+            }
+        }
     }
 
     private fun saveSubject() {

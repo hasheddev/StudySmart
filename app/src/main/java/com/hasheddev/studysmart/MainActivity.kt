@@ -13,10 +13,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.graphics.toArgb
 import androidx.core.app.ActivityCompat
-import com.hasheddev.studysmart.domain.model.Session
-import com.hasheddev.studysmart.domain.model.Subject
 import com.hasheddev.studysmart.presentation.NavGraphs
 import com.hasheddev.studysmart.presentation.destinations.SessionScreenRouteDestination
 import com.hasheddev.studysmart.presentation.session.StudySessionTimerService
@@ -89,51 +86,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
-val subjects = listOf(
-    Subject(subjectId = 0, name = "English", goalHours = 10f, colors = Subject.subjectCardColors[0].map { it.toArgb() }),
-    Subject(subjectId = 0, name = "Physics", goalHours = 1f, colors = Subject.subjectCardColors[1].map { it.toArgb() }),
-    Subject(subjectId = 0, name = "Maths", goalHours = 12f, colors = Subject.subjectCardColors[2].map { it.toArgb() }),
-    Subject(subjectId = 0, name = "Geology", goalHours = 0.3f, colors = Subject.subjectCardColors[3].map { it.toArgb() }),
-    Subject(subjectId = 0, name = "Fine Arts", goalHours = 9f, colors = Subject.subjectCardColors[4].map { it.toArgb() })
-)
-
-val sessions = listOf(
-    Session(
-        relatedSubject = "English",
-        date = 0L,
-        duration = 2,
-        sessionId = 2,
-        sessionSubjectId = 1
-    ),
-    Session(
-        relatedSubject = "Maths",
-        date = 1L,
-        duration = 0,
-        sessionId = 3,
-        sessionSubjectId = 6
-    ),
-    Session(
-        relatedSubject = "Geo",
-        date = 1L,
-        duration = 0,
-        sessionId = 3,
-        sessionSubjectId = 6
-    ),
-    Session(
-        relatedSubject = "Maths",
-        date = 1L,
-        duration = 0,
-        sessionId = 3,
-        sessionSubjectId = 6
-    ),
-    Session(
-        relatedSubject = "Maths",
-        date = 1L,
-        duration = 0,
-        sessionId = 3,
-        sessionSubjectId = 6
-    )
-)
-const val emptyListText = "You don't have any upcoming tasks.\n Click the + button in subject screen button to add new tasks."
-const val emptySessionText = "You don't have any recent study sessions.\n Start a study session to begin recording your progress."

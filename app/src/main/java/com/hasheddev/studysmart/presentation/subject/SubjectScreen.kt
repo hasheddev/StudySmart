@@ -46,8 +46,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.hasheddev.studysmart.emptyListText
-import com.hasheddev.studysmart.emptySessionText
 import com.hasheddev.studysmart.presentation.components.AddSubjectDialogue
 import com.hasheddev.studysmart.presentation.components.CountCard
 import com.hasheddev.studysmart.presentation.components.DeleteDialogue
@@ -55,6 +53,7 @@ import com.hasheddev.studysmart.presentation.components.studySessionsList
 import com.hasheddev.studysmart.presentation.components.taskList
 import com.hasheddev.studysmart.presentation.destinations.TaskScreenRouteDestination
 import com.hasheddev.studysmart.presentation.task.TaskScreenNavArgs
+import com.hasheddev.studysmart.util.Constants
 import com.hasheddev.studysmart.util.SnackBarEvent
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -79,7 +78,7 @@ fun SubjectScreenRoute(
         onEvent = viewModel::onEvent,
         onBackButtonClick = { navigator.navigateUp() },
         onAddTaskClickedClick = {
-            val navArgs = TaskScreenNavArgs(taskId = null, subjectId = -1)
+            val navArgs = TaskScreenNavArgs(taskId = null, subjectId = subjectState.currentSubjectId)
             navigator.navigate(TaskScreenRouteDestination(navArgs = navArgs))
         },
         onTaskCardClick ={ id ->
@@ -153,8 +152,7 @@ private fun SubjectScreen(
     DeleteDialogue(
         isOpen = isDeleteSessionDialogueOpen,
         title = "Delete Session?",
-        bodyText = "Are you sure you want to delete this session? Your Study hours will be reduced" +
-                "by this session time. This action cannot be undone.",
+        bodyText = Constants.DELETE_SESSION_TEXT_2,
         onDismissRequest = {
             isDeleteSessionDialogueOpen = false
         },
@@ -167,8 +165,7 @@ private fun SubjectScreen(
     DeleteDialogue(
         isOpen = isDeleteSubjectDialogueOpen,
         title = "Delete Subject?",
-        bodyText = "Are you sure you want to delete this subject? All related tasks and study sessions" +
-                "will be permanently removed. This action cannot be undone.",
+        bodyText = Constants.SUBJECT_DELETION_TEXT,
         onDismissRequest = {
             isDeleteSubjectDialogueOpen = false
         },
@@ -220,7 +217,7 @@ private fun SubjectScreen(
 
             taskList(
                 sectionTitle = "UPCOMING TASKS",
-                emptyListText = emptyListText,
+                emptyListText = Constants.EMPTY_LIST_TEXT,
                 tasks = state.upcomingTasks,
                 onCheckBoxClicked = { onEvent(SubjectEvent.OnTaskCompletedStateChange(it)) },
                 onTaskCardClick = onTaskCardClick
@@ -231,9 +228,8 @@ private fun SubjectScreen(
             }
 
             taskList(
-                sectionTitle = "Completed TASKS",
-                emptyListText = "You don't have anu completed tasks.\n" +
-                        "Click the check box on task completion",
+                sectionTitle = "COMPLETED TASKS",
+                emptyListText = Constants.EMPTY_COMPLETED_TASKS,
                 tasks = state.completedTasks,
                 onCheckBoxClicked = { onEvent(SubjectEvent.OnTaskCompletedStateChange(it)) },
                 onTaskCardClick = onTaskCardClick
@@ -246,7 +242,7 @@ private fun SubjectScreen(
 
             studySessionsList(
                 sectionTitle = "RECENT STUDY SESSIONS",
-                emptyListText = emptySessionText,
+                emptyListText = Constants.EMPTY_SESSION_TEXT,
                 sessions = state.recentSessions,
                 onDeleteIconClick = {
                     isDeleteSessionDialogueOpen = true
@@ -281,7 +277,7 @@ private fun SubjectScreenTopBar(
             IconButton(onClick = onBackButtonClick) {
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "navigate Back"
+                    contentDescription = "Navigate Back"
                 )
             }
         },

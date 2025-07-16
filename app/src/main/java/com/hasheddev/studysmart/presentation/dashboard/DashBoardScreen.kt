@@ -46,8 +46,6 @@ import com.hasheddev.studysmart.R
 import com.hasheddev.studysmart.domain.model.Session
 import com.hasheddev.studysmart.domain.model.Subject
 import com.hasheddev.studysmart.domain.model.Task
-import com.hasheddev.studysmart.emptyListText
-import com.hasheddev.studysmart.emptySessionText
 import com.hasheddev.studysmart.presentation.components.AddSubjectDialogue
 import com.hasheddev.studysmart.presentation.components.CountCard
 import com.hasheddev.studysmart.presentation.components.DeleteDialogue
@@ -59,13 +57,17 @@ import com.hasheddev.studysmart.presentation.destinations.SubjectScreenRouteDest
 import com.hasheddev.studysmart.presentation.destinations.TaskScreenRouteDestination
 import com.hasheddev.studysmart.presentation.subject.SubjectScreenNavArgs
 import com.hasheddev.studysmart.presentation.task.TaskScreenNavArgs
+import com.hasheddev.studysmart.util.Constants
+import com.hasheddev.studysmart.util.Constants.EMPTY_SUBJECT_TEXT
 import com.hasheddev.studysmart.util.SnackBarEvent
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collectLatest
 
-@Destination(start = true)
+@RootNavGraph(start = true)
+@Destination
 @Composable
 fun DashboardScreenRoute(
     navigator: DestinationsNavigator
@@ -149,8 +151,7 @@ private fun DashBoardScreen(
     DeleteDialogue(
         isOpen = isDeleteSessionDialogueOpen,
         title = "Delete Session?",
-        bodyText = "Are you sure you want to delete this session? Your Study hours will be reduced" +
-                "by this session time. This action cannot be undone.",
+        bodyText = Constants.DELETE_SESSION_TEXT_2,
         onDismissRequest = {
             isDeleteSessionDialogueOpen = false
         },
@@ -201,7 +202,7 @@ private fun DashBoardScreen(
             }
             taskList(
                 sectionTitle = "UPCOMING TASKS",
-                emptyListText = emptyListText,
+                emptyListText = Constants.EMPTY_LIST_TEXT,
                 tasks = tasks,
                 onCheckBoxClicked = {onEvent(DashBoardEvent.OnTaskCompleteChanged(it))},
                 onTaskCardClick = onTaskCardClick
@@ -213,7 +214,7 @@ private fun DashBoardScreen(
 
             studySessionsList(
                 sectionTitle = "RECENT STUDY SESSIONS",
-                emptyListText = emptySessionText,
+                emptyListText = Constants.EMPTY_SESSION_TEXT,
                 sessions = sessions,
                 onDeleteIconClick = {
                     isDeleteSessionDialogueOpen = true
@@ -268,11 +269,10 @@ private fun CountCardSection(
     }
 }
 
-const val empty = "You don't have any subjects.\n Click the + button to add new subjects."
 @Composable
 private fun SubjectCardSection(
     subjectList: List<Subject> = emptyList(),
-    emptyListText: String = empty,
+    emptyListText: String = EMPTY_SUBJECT_TEXT,
     onAddIconClicked: () -> Unit,
     onSubjectCardClick: (Int?) -> Unit,
     modifier: Modifier

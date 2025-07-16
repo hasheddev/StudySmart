@@ -55,7 +55,14 @@ class StudySessionTimerService: Service() {
     private var _currentTimerState = MutableStateFlow(TimerState.IDLE)
     val currentTimerState: StateFlow<TimerState> = _currentTimerState
 
+    private var _subjectId = MutableStateFlow<Int?>(null)
+    val subjectId: StateFlow<Int?> = _subjectId
+
     override fun onBind(p0: Intent?): IBinder = binder
+
+    fun updateSubjectId(id: Int) {
+        _subjectId.update { id }
+    }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         intent?.action?.let {
